@@ -1,9 +1,21 @@
-import Image from "next/image";
+import prisma from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const users = await prisma.user.findMany();
+  console.log(users);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h1> Hello Zoo</h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16">
+      <h1 className="text-4xl font-bold mb-8 font-sans text-[#333333]">
+        Superblog
+      </h1>
+      <ol className="list-decimal list-inside font-sans">
+        {users.map((user) => (
+          <li key={user.id} className="mb-2 text-[#333333]">
+            {user.name}
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
