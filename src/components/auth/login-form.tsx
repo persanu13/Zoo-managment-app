@@ -4,8 +4,6 @@ import { useActionState } from "react";
 import { authenticate } from "@/lib/actions/authenticate";
 import { useSearchParams } from "next/navigation";
 
-import { ExclamationCircleIcon, KeyIcon } from "@heroicons/react/24/outline";
-
 import {
   Field,
   FieldDescription,
@@ -25,14 +23,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "../ui/button";
-import { AtSign } from "lucide-react";
+import { AtSign, KeyIcon, KeySquare, TriangleAlert } from "lucide-react";
 
-const LoginForm = () => {
+export function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [errorMessage, formAction, isPending] = useActionState(
     authenticate,
-    undefined
+    undefined,
   );
 
   return (
@@ -47,7 +45,10 @@ const LoginForm = () => {
               <Field>
                 <FieldLabel htmlFor="email">Username</FieldLabel>
                 <div className="relative">
-                  <AtSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <AtSign
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     id="email"
                     type="email"
@@ -68,17 +69,23 @@ const LoginForm = () => {
                     placeholder="••••••••"
                     className="pl-9"
                   />
-                  <KeyIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+                  <KeySquare
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                 </div>
               </Field>
               <Field orientation="horizontal">
                 <input type="hidden" name="redirectTo" value={callbackUrl} />
-                <Button type="submit">Submit</Button>
+                <Button type="submit" aria-disabled={isPending}>
+                  Submit
+                </Button>
               </Field>
               {errorMessage && (
                 <>
-                  <FieldError className="flex">
-                    <ExclamationCircleIcon className="h-5 w-5 mr-1" />
+                  <FieldError className="flex gap-1 items-center">
+                    <TriangleAlert size={16} />
                     {errorMessage}
                   </FieldError>
                 </>
@@ -89,6 +96,4 @@ const LoginForm = () => {
       </CardContent>
     </Card>
   );
-};
-
-export default LoginForm;
+}

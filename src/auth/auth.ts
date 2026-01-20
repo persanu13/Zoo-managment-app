@@ -5,34 +5,39 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth-utils";
 
-export const { auth, signIn, signOut } = NextAuth({
+export const {
+  auth,
+  handlers: { GET, POST },
+  signIn,
+  signOut,
+} = NextAuth({
   ...authConfig,
+
   providers: [
     Credentials({
       async authorize(credentials) {
         const parsedCredentials = z
-          .object({ email: z.string().email(), password: z.string().min(6) })
+          .object({
+            email: z.string().email(),
+            password: z.string().min(6),
+          })
           .safeParse(credentials);
-        console.log(parsedCredentials);
-        if (parsedCredentials.success) {
-          const { email, password } = parsedCredentials.data;
 
-          const user = await prisma.user.findUnique({
-            where: {
-              email: email,
-            },
-          });
-          console.log(user);
-          if (!user) return null;
-          if (!user.password) return null;
+        if (!parsedCredentials.success) return null;
 
-          const passwordsMatch = await verifyPassword(password, user.password);
-          console.log(passwordsMatch);
-          if (passwordsMatch) return user;
-        }
+        const { email, password } = parsedCredentials.data;
 
-        console.log("Invalid credentials");
-        return null;
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (!user || !user.password) return null;
+
+        const passwordsMatch = await verifyPassword(password, user.password);
+
+        if (!passwordsMatch) return null;
+
+        return user;
       },
     }),
   ],

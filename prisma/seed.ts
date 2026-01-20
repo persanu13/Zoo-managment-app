@@ -15,15 +15,15 @@ const prisma = new PrismaClient({
 export async function main() {
   console.log("🌱 Starting seed...");
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV !== "production") {
     console.log("🧹 Cleaning database...");
     await prisma.user.deleteMany();
   }
 
   console.log("👤 Creating users...");
 
-  const superAdminPassword = await hashPassword("admin123");
-  const userPassword = await hashPassword("user123");
+  const superAdminPassword = await hashPassword("sadmin123");
+  const adminPassword = await hashPassword("admin123");
   const staffPassword = await hashPassword("staff123");
 
   const users = await prisma.user.createMany({
@@ -35,14 +35,14 @@ export async function main() {
         role: "SUPER_ADMIN",
       },
       {
-        name: "John Doe",
-        email: "john@example.com",
-        password: userPassword,
-        role: "STAFF",
+        name: "Admin ",
+        email: "admin@zoo.com",
+        password: adminPassword,
+        role: "ADMIN",
       },
       {
         name: "Staff Member",
-        email: "staff@example.com",
+        email: "staff@zoo.com",
         password: staffPassword,
         role: "STAFF",
       },

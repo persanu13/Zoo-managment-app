@@ -29,7 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ThemeToggle className="absolute right-2 top-2" />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

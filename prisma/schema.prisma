@@ -20,15 +20,14 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  password      String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  role          Role      @default(STAFF)
+  id       String @id @default(cuid())
+  name     String
+  password String
+  email    String @unique
+  role     Role   @default(STAFF)
 
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
 }

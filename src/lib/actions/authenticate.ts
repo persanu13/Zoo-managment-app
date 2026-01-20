@@ -3,11 +3,9 @@
 import { signIn } from "@/auth/auth";
 import { AuthError } from "next-auth";
 
-// ...
-
 export async function authenticate(
   prevState: string | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
     await signIn("credentials", formData);
