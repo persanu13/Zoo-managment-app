@@ -27,7 +27,7 @@ import { AtSign, KeyIcon, KeySquare, TriangleAlert } from "lucide-react";
 
 export function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") || "/home";
   const [errorMessage, formAction, isPending] = useActionState(
     authenticate,
     undefined,
@@ -78,7 +78,7 @@ export function LoginForm() {
               </Field>
               <Field orientation="horizontal">
                 <input type="hidden" name="redirectTo" value={callbackUrl} />
-                <Button type="submit" aria-disabled={isPending}>
+                <Button type="submit" disabled={isPending}>
                   Submit
                 </Button>
               </Field>
@@ -86,7 +86,7 @@ export function LoginForm() {
                 <>
                   <FieldError className="flex gap-1 items-center">
                     <TriangleAlert size={16} />
-                    {errorMessage}
+                    {errorMessage.error}
                   </FieldError>
                 </>
               )}

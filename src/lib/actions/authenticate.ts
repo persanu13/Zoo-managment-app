@@ -2,9 +2,11 @@
 
 import { signIn } from "@/auth/auth";
 import { AuthError } from "next-auth";
+import { State } from "../types";
+import { redirect } from "next/dist/server/api-utils";
 
 export async function authenticate(
-  prevState: string | undefined,
+  prevState: { error: string } | undefined,
   formData: FormData,
 ) {
   try {
@@ -13,9 +15,9 @@ export async function authenticate(
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return "Invalid credentials.";
+          return { error: "Invalid credentials." };
         default:
-          return "Something went wrong.";
+          return { error: "Something went wrong." };
       }
     }
     throw error;

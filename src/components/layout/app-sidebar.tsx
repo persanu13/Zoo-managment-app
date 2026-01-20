@@ -25,12 +25,12 @@ import { signOut } from "@/auth/auth";
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/home",
     icon: Home,
   },
   {
     title: "Users",
-    url: "/dashboard/users",
+    url: "/home/users",
     icon: Users,
   },
   {
@@ -76,7 +76,7 @@ export function AppSidebar() {
         <form
           action={async () => {
             "use server";
-            await signOut({ redirectTo: "/" });
+            await signOut({ redirectTo: "/login" });
           }}
         >
           <SidebarMenuButton className="cursor-pointer">

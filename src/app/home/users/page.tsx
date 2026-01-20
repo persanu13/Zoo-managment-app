@@ -18,7 +18,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import { columns } from "@/components/users/columns";
+import { columns } from "@/components/users/users-columns";
 import { DataTable } from "@/components/users/users-table";
 import { User } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
@@ -39,7 +39,6 @@ export default async function DemoPage() {
           <DataTable columns={columns} data={data} />
         </CardContent>
       </Card>
-      <UserForm />
     </div>
   );
 }

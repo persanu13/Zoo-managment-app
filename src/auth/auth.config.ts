@@ -10,20 +10,20 @@ export const authConfig = {
     //  Middleware authorization
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
+      const isOnHome = nextUrl.pathname.startsWith("/home");
 
       if (nextUrl.pathname === "/") {
         return Response.redirect(
-          new URL(isLoggedIn ? "/dashboard" : "/login", nextUrl),
+          new URL(isLoggedIn ? "/home" : "/login", nextUrl),
         );
       }
 
-      if (isOnDashboard) {
+      if (isOnHome) {
         return isLoggedIn;
       }
 
       if (isLoggedIn && nextUrl.pathname === "/login") {
-        return Response.redirect(new URL("/dashboard", nextUrl));
+        return Response.redirect(new URL("/home", nextUrl));
       }
 
       return true;
