@@ -66,6 +66,19 @@ export async function createUser(prevState: State, formData: FormData) {
     };
   }
 
-  revalidatePath("/dashboard/users");
-  redirect("/dashboard/users");
+  revalidatePath("/home/users");
+  redirect("/home/users");
+}
+
+export async function deleteUser(userId: string) {
+  const session = await auth();
+  const user = session?.user;
+  if (!user || user.role === Role.STAFF || user.role === Role.ADMIN) {
+    throw new Error("You don't have access to do this function.");
+  }
+  await prisma.user.delete({
+    where: { id: userId },
+  });
+  revalidatePath("/home/users");
+  return;
 }

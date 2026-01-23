@@ -33,18 +33,16 @@ export default async function DemoPage() {
 
   return (
     <div className="container mx-auto  flex justify-center  mt-8">
-      <Card className="w-full h-full">
+      <Card className="w-full h-fit mb-5">
         <CardHeader>
-          <CardTitle>Users Table</CardTitle>
+          <CardTitle>Create Employee Account</CardTitle>
+          <CardDescription>
+            Add a new employee to the zoo management system.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="">
-          <DataTable columns={columns} data={data} />
-          <Link href="/home/users/create">
-            <Button className="cursor-pointer">
-              Create New User
-              <UserRoundPlus className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+
+        <CardContent>
+          <UserForm />
         </CardContent>
       </Card>
     </div>

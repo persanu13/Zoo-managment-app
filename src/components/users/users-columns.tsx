@@ -4,11 +4,16 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   DeleteIcon,
   MoreHorizontal,
+  MoreVertical,
   Shield,
   SquarePen,
   Trash2,
   User,
   Users,
+  Triangle,
+  CircleChevronUp,
+  ChevronUp,
+  Trash2Icon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,8 +26,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { User as UserPrisma } from "@/generated/prisma/client";
 import { ArrowUpDown } from "lucide-react";
+import { deleteUser } from "@/lib/actions/users";
 
 export const columns: ColumnDef<UserPrisma>[] = [
   {
@@ -57,7 +75,52 @@ export const columns: ColumnDef<UserPrisma>[] = [
 
   {
     accessorKey: "role",
-    header: "Role",
+    header: ({ column }) => (
+      <div className="flex items-center justify-between w-full h-8 px-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent any sorting
+              }}
+            >
+              Role
+              <ChevronUp />
+              <span className="sr-only">Filter roles</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Filter roles</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => column.setFilterValue("")}
+              className="cursor-pointer"
+            >
+              All
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => column.setFilterValue("STAFF")}
+              className="cursor-pointer"
+            >
+              Staff
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => column.setFilterValue("ADMIN")}
+              className="cursor-pointer"
+            >
+              Admin
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => column.setFilterValue("SUPER_ADMIN")}
+              className="cursor-pointer"
+            >
+              Super Admin
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    ),
   },
 
   {
@@ -122,14 +185,47 @@ export const columns: ColumnDef<UserPrisma>[] = [
     id: "actions",
 
     cell: ({ row }) => {
+      const deleteUserWithId = deleteUser.bind(null, row.original.id);
       return (
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon" className="cursor-pointer">
+        <div className="flex gap-2 justify-end">
+          <Button
+            variant="outline"
+            size="icon"
+            className="cursor-pointer size-9"
+          >
             <SquarePen size="16" />
           </Button>
-          <Button variant="destructive" size="icon" className="cursor-pointer">
-            <Trash2 size="16" />
-          </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="cursor-pointer size-9"
+              >
+                <Trash2Icon size="16" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Delete User "{row.original.email}"
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this user? This action cannot
+                  be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <form action={deleteUserWithId}>
+                  <AlertDialogAction type="submit" variant="destructive">
+                    Delete
+                  </AlertDialogAction>
+                </form>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       );
     },

@@ -15,14 +15,16 @@ export default async function Layout({
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
-      style={{
-        "--sidebar-width": "12rem",
-        "--sidebar-width-mobile": "12rem",
-      }}
+      style={
+        {
+          ["--sidebar-width" as any]: "12rem",
+          ["--sidebar-width-mobile" as any]: "12rem",
+        } as React.CSSProperties
+      }
     >
       <AppSidebar />
       <SidebarTrigger className="ml-2 mt-2" />
-      <main className="p-6">
+      <main className="p-6 pr-14 w-full">
         <BreadcrumbWrapper />
         {children}
       </main>
