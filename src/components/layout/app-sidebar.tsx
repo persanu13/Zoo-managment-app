@@ -6,6 +6,7 @@ import {
   Settings,
   Users,
   LogOut,
+  Turtle,
 } from "lucide-react";
 
 import {
@@ -34,9 +35,9 @@ const items = [
     icon: Users,
   },
   {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
+    title: "Animals",
+    url: "/home/animals",
+    icon: Turtle,
   },
   {
     title: "Search",
@@ -62,7 +63,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
-                      <item.icon />
+                      <item.icon size={18} />
                       <span>{item.title}</span>
                     </a>
                   </SidebarMenuButton>
@@ -80,7 +81,7 @@ export function AppSidebar() {
           }}
         >
           <SidebarMenuButton className="cursor-pointer">
-            <LogOut></LogOut>
+            <LogOut size={18}></LogOut>
             <span>LogOut</span>
           </SidebarMenuButton>
         </form>

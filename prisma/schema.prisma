@@ -19,6 +19,19 @@ enum Role {
   SUPER_ADMIN
 }
 
+enum Sex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum HealthStatus {
+  HEALTHY
+  ILL
+  QUARANTINE
+  RECOVERING
+}
+
 model User {
   id       String @id @default(cuid())
   name     String
@@ -30,4 +43,65 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@map("users")
+}
+
+model Animal {
+  id          String   @id @default(cuid())
+  name        String // "Leo" (nume individual)
+  species     String // "Panthera leo" (nume științific)
+  commonName  String // "African Lion"
+  age         Int // Vârsta în ani
+  sex         Sex // MALE/FEMALE/UNKNOWN
+  weight      Float? // Greutate kg
+  imageUrl    String? // URL poză
+  arrivalDate DateTime @default(now()) // Data sosirii
+
+  // Status sănătate
+  healthStatus HealthStatus @default(HEALTHY)
+
+  // Relații cheie
+  habitatId String?
+  habitat   Habitat? @relation(fields: [habitatId], references: [id])
+
+  // Track medical/feeding
+  treatments Treatment[]
+  feedings   Feeding[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Habitat {
+  id          String  @id @default(cuid())
+  name        String // "African Savanna" / "Amazon Rainforest"
+  type        String // "savanna", "jungle", "aquarium", "arctic"
+  capacity    Int
+  coordinates Json? // {x: 250, y: 150, width: 120, height: 80}
+  color       String? // "#4F46E5"
+  imageUrl    String?
+
+  animals Animal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Treatment {
+  id        String   @id @default(cuid())
+  animalId  String
+  animal    Animal   @relation(fields: [animalId], references: [id])
+  title     String // "Vaccination"
+  notes     String?
+  date      DateTime
+  createdBy String // userId
+}
+
+model Feeding {
+  id        String    @id @default(cuid())
+  animalId  String
+  animal    Animal    @relation(fields: [animalId], references: [id])
+  foodType  String
+  quantity  String
+  scheduled DateTime
+  fedAt     DateTime?
 }

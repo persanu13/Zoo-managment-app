@@ -2,7 +2,7 @@
 
 import prisma from "../prisma";
 import { revalidatePath } from "next/cache";
-import { CreateUserSchema } from "../schemas/user-schema";
+import { CreateUserSchema, UpdateUserSchema } from "../schemas/user-schema";
 import { State } from "../types";
 import { redirect } from "next/navigation";
 import { hashPassword } from "../auth-utils";
@@ -60,6 +60,97 @@ export async function createUser(prevState: State, formData: FormData) {
   } catch (error) {
     return {
       message: "Database Error: Failed to register user!",
+      errors: {
+        db: ["An unexpected error occurred. Please try again!"],
+      },
+    };
+  }
+
+  revalidatePath("/home/users");
+  redirect("/home/users");
+}
+
+export async function updateUser(
+  userId: string,
+  prevState: State,
+  formData: FormData,
+): Promise<State> {
+  const session = await auth();
+  const user = session?.user;
+
+  // Authorization check
+  if (!user || user.role === Role.STAFF) {
+    return {
+      errors: {},
+      message: "You don't have access to do this function.",
+    };
+  }
+
+  // Validate userId exists for edit
+  if (!userId) {
+    return {
+      errors: {},
+      message: "User ID is required.",
+    };
+  }
+
+  // Check if change password was requested
+  const changePassword = formData.get("changePassword") === "on";
+
+  const validatedFields = UpdateUserSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    role: formData.get("role"),
+    ...(changePassword && { password: formData.get("password") }),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Invalid fields. Please check your input.",
+    };
+  }
+
+  const { name, email, role } = validatedFields.data;
+
+  try {
+    // Check if email already exists (excluding current user)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: email.toLowerCase(),
+        id: { not: userId },
+      },
+    });
+
+    if (existingUser) {
+      return {
+        message: "Update failed!",
+        errors: {
+          email: ["User with this email already exists!"],
+        },
+      };
+    }
+
+    // Prepare update data
+    const updateData: any = {
+      name,
+      email: email.toLowerCase(),
+      role,
+    };
+
+    // Add password if requested
+    if (changePassword && validatedFields.data.password) {
+      updateData.password = await hashPassword(validatedFields.data.password);
+    }
+
+    // Update user
+    await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+  } catch (error) {
+    return {
+      message: "Database Error: Failed to update user!",
       errors: {
         db: ["An unexpected error occurred. Please try again!"],
       },

@@ -19,3 +19,30 @@ export const CreateUserSchema = UserSchema.omit({
 }).extend({
   role: z.enum(["STAFF", "ADMIN"]).default("STAFF"),
 });
+
+export const UpdateUserSchema = UserSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+})
+  .extend({
+    role: z.enum(["STAFF", "ADMIN"]),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .optional()
+      .or(z.literal("")), // Permite string gol
+  })
+  .refine(
+    (data) => {
+      // Password opțional - dacă e furnizat trebuie să fie valid
+      if (data.password && data.password.length > 0) {
+        return data.password.length >= 8;
+      }
+      return true;
+    },
+    {
+      message: "Password must be at least 8 characters if provided",
+      path: ["password"],
+    },
+  );

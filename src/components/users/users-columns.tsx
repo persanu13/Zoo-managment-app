@@ -41,6 +41,7 @@ import {
 import { User as UserPrisma } from "@/generated/prisma/client";
 import { ArrowUpDown } from "lucide-react";
 import { deleteUser } from "@/lib/actions/users";
+import Link from "next/link";
 
 export const columns: ColumnDef<UserPrisma>[] = [
   {
@@ -188,14 +189,15 @@ export const columns: ColumnDef<UserPrisma>[] = [
       const deleteUserWithId = deleteUser.bind(null, row.original.id);
       return (
         <div className="flex gap-2 justify-end">
-          <Button
-            variant="outline"
-            size="icon"
-            className="cursor-pointer size-9"
-          >
-            <SquarePen size="16" />
-          </Button>
-
+          <Link href={`/home/users/${row.original.id}/edit`}>
+            <Button
+              variant="outline"
+              size="icon"
+              className="cursor-pointer size-9"
+            >
+              <SquarePen size="16" />
+            </Button>
+          </Link>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button

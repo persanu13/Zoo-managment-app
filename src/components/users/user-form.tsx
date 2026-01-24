@@ -1,9 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-
 import {
   Field,
   FieldContent,
@@ -17,7 +15,6 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { Input } from "../ui/input";
-
 import {
   Card,
   CardContent,
@@ -27,35 +24,62 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "../ui/button";
-
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-import { createUser } from "@/lib/actions/users";
+import { Checkbox } from "@/components/ui/checkbox";
+import { createUser, updateUser } from "@/lib/actions/users";
 import { State } from "@/lib/types";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import { Role } from "@/generated/prisma/enums";
 
-export function UserForm() {
+interface UserFormProps {
+  initialData?: {
+    id: string;
+    name: string;
+    email: string;
+    role: Role;
+  } | null;
+  mode?: "create" | "edit";
+}
+
+export function UserForm({ initialData, mode = "create" }: UserFormProps) {
+  const isEditMode = mode === "edit";
+
   const initialState: State = { message: null, errors: {} };
+
+  const action = initialData
+    ? updateUser.bind(null, initialData.id)
+    : createUser;
+
   const [errorMessage, formAction, isPending] = useActionState(
-    createUser,
+    action,
     initialState,
   );
+
+  console.log(initialData);
 
   return (
     <form action={formAction}>
       <FieldSet>
-        <FieldLegend>Employee information</FieldLegend>
+        <FieldLegend>
+          {isEditMode ? "Edit Employee" : "Employee information"}
+        </FieldLegend>
         <FieldDescription>
-          Fill in the details below to create a new user account. The employee
-          will be able to log in and access the system based on their assigned
-          role.
+          {isEditMode
+            ? "Update employee details. They will be notified of any changes."
+            : "Fill in the details below to create a new user account."}
         </FieldDescription>
 
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="name">Full name</FieldLabel>
-            <Input id="name" name="name" type="text" placeholder="Max Leiter" />
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Max Leiter"
+              defaultValue={initialData?.name || ""}
+            />
             {errorMessage.errors?.name && (
               <FieldError>{errorMessage.errors.name}</FieldError>
             )}
@@ -68,27 +92,54 @@ export function UserForm() {
               name="email"
               type="email"
               placeholder="max.leiter@zoo.com"
+              defaultValue={initialData?.email || ""}
             />
             {errorMessage.errors?.email && (
               <FieldError>{errorMessage.errors.email}</FieldError>
             )}
           </Field>
 
-          <Field>
-            <FieldLabel htmlFor="password">Temporary password</FieldLabel>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-            />
-            <FieldDescription>
-              The employee can change this password after the first login.
-            </FieldDescription>
-            {errorMessage.errors?.password && (
-              <FieldError>{errorMessage.errors.password}</FieldError>
-            )}
-          </Field>
+          {/* PASSWORD FIELD - CONDITIONAL IN EDIT MODE */}
+          {!isEditMode ? (
+            <Field>
+              <FieldLabel htmlFor="password">Temporary password</FieldLabel>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+              />
+              <FieldDescription>
+                The employee can change this password after the first login.
+              </FieldDescription>
+              {errorMessage.errors?.password && (
+                <FieldError>{errorMessage.errors.password}</FieldError>
+              )}
+            </Field>
+          ) : (
+            <Field>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="change-password" name="changePassword" />
+                <FieldLabel htmlFor="change-password">
+                  Change password
+                </FieldLabel>
+              </div>
+              <FieldDescription>
+                Check this box if you want to set a new password for this
+                employee.
+              </FieldDescription>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                className="mt-2"
+              />
+              {errorMessage.errors?.password && (
+                <FieldError>{errorMessage.errors.password}</FieldError>
+              )}
+            </Field>
+          )}
 
           {/* ROLE SELECTION */}
           <FieldSet>
@@ -98,7 +149,7 @@ export function UserForm() {
               system.
             </FieldDescription>
 
-            <RadioGroup name="role" defaultValue="STAFF">
+            <RadioGroup name="role" defaultValue={initialData?.role || "STAFF"}>
               <FieldLabel htmlFor="staff-role">
                 <Field orientation="horizontal">
                   <FieldContent>
@@ -126,15 +177,17 @@ export function UserForm() {
               </FieldLabel>
             </RadioGroup>
           </FieldSet>
+
           {errorMessage.message && (
             <FieldError className="flex items-center gap-2">
               <TriangleAlert size={16} />
               {errorMessage.message}
             </FieldError>
           )}
+
           <Field orientation="horizontal">
             <Button type="submit" aria-disabled={isPending}>
-              Create Account
+              {isEditMode ? "Update Account" : "Create Account"}
             </Button>
             <Link href="/home/users">
               <Button type="button" variant="secondary">

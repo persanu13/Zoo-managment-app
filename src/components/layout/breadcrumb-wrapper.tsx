@@ -14,7 +14,13 @@ import { Fragment } from "react/jsx-runtime";
 
 export function BreadcrumbWrapper() {
   const pathname = usePathname();
-  const segments = pathname.split("/").filter(Boolean);
+  const idRegex =
+    /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^c[a-z0-9]{24}$|^[a-f0-9]{24}$|^\d{10,}$/;
+
+  const segments = pathname
+    .split("/")
+    .filter((segment) => idRegex.test(segment) === false)
+    .filter(Boolean);
 
   return (
     <Breadcrumb>
