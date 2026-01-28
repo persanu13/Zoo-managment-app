@@ -1,4 +1,5 @@
 import { auth } from "@/auth/auth";
+import { AnimalForm } from "@/components/animals/animal-form";
 
 import {
   Card,
@@ -8,23 +9,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { UserForm } from "@/components/users/user-form";
-
-export default async function CreateUserPage() {
+export default async function CreateAnimalPage() {
   const session = await auth();
 
   return (
     <div className="container mx-auto  flex justify-center  mt-8">
       <Card className="w-full h-fit mb-5">
         <CardHeader>
-          <CardTitle>Create Employee Account</CardTitle>
-          <CardDescription>
-            Add a new employee to the zoo management system.
-          </CardDescription>
+          <CardTitle>Add new Animal</CardTitle>
+          <CardDescription>Add a new animal to the zoo system.</CardDescription>
         </CardHeader>
 
         <CardContent>
-          <UserForm />
+          <AnimalForm />
         </CardContent>
       </Card>
     </div>

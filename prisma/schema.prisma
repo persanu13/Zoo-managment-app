@@ -27,9 +27,8 @@ enum Sex {
 
 enum HealthStatus {
   HEALTHY
-  ILL
-  QUARANTINE
-  RECOVERING
+  OBSERVATION
+  UNHEALTHY
 }
 
 model User {
@@ -73,12 +72,13 @@ model Animal {
 
 model Habitat {
   id          String  @id @default(cuid())
-  name        String // "African Savanna" / "Amazon Rainforest"
-  type        String // "savanna", "jungle", "aquarium", "arctic"
+  number      Int     @unique
+  name        String
+  type        String
   capacity    Int
-  coordinates Json? // {x: 250, y: 150, width: 120, height: 80}
-  color       String? // "#4F46E5"
-  imageUrl    String?
+  coordinates Int[] // ex: [x1, y1, x2, y2, ...] pentru delimitarea pe harta
+  color       String?
+  closed      Boolean @default(true)
 
   animals Animal[]
 

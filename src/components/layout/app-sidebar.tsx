@@ -1,13 +1,4 @@
-import {
-  Calendar,
-  Home,
-  Inbox,
-  Search,
-  Settings,
-  Users,
-  LogOut,
-  Turtle,
-} from "lucide-react";
+import { Home, Users, LogOut, Turtle, Map } from "lucide-react";
 
 import {
   Sidebar,
@@ -40,14 +31,9 @@ const items = [
     icon: Turtle,
   },
   {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    title: "Zoo Map",
+    url: "/home/map",
+    icon: Map,
   },
 ];
 
