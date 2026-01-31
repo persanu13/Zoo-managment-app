@@ -2,16 +2,10 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  DeleteIcon,
-  MoreHorizontal,
-  MoreVertical,
   Shield,
   SquarePen,
-  Trash2,
   User,
   Users,
-  Triangle,
-  CircleChevronUp,
   ChevronUp,
   Trash2Icon,
 } from "lucide-react";
@@ -76,6 +70,10 @@ export const columns: ColumnDef<UserPrisma>[] = [
 
   {
     accessorKey: "role",
+    filterFn: (row, id, value) => {
+      if (!value) return true; // All
+      return row.getValue(id) === value;
+    },
     header: ({ column }) => (
       <div className="flex items-center justify-between w-full h-8 px-2">
         <DropdownMenu>
@@ -184,7 +182,7 @@ export const columns: ColumnDef<UserPrisma>[] = [
 
   {
     id: "actions",
-
+    enableHiding: false,
     cell: ({ row }) => {
       const deleteUserWithId = deleteUser.bind(null, row.original.id);
       return (

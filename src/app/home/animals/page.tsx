@@ -1,3 +1,32 @@
-export default function Animals() {
-  return <div>Animals Home Page</div>;
+import { columns } from "@/components/animals/animals-columns";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/layout/data-table";
+import prisma from "@/lib/prisma";
+import { Turtle } from "lucide-react";
+import Link from "next/link";
+
+export default async function AnimalsPage() {
+  const data = await prisma.animal.findMany({
+    orderBy: { createdAt: "asc" },
+  });
+
+  return (
+    <div className="container mx-auto  flex justify-center  mt-8">
+      <Card className="w-full h-full">
+        <CardHeader>
+          <CardTitle>Animal Table</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable columns={columns} data={data} />
+          <Link href="/home/animals/create">
+            <Button className="cursor-pointer">
+              Add new Animal
+              <Turtle className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

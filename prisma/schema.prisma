@@ -38,6 +38,9 @@ model User {
   email    String @unique
   role     Role   @default(STAFF)
 
+  treatments Treatment[] @relation("UserTreatments")
+  feedings   Feeding[]   @relation("UserFeedings")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -87,21 +90,34 @@ model Habitat {
 }
 
 model Treatment {
-  id        String   @id @default(cuid())
-  animalId  String
-  animal    Animal   @relation(fields: [animalId], references: [id])
-  title     String // "Vaccination"
-  notes     String?
+  id String @id @default(cuid())
+
+  animalId String
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  title String
+  notes String?
+
+  createdById String
+  createdBy   User   @relation("UserTreatments", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
   date      DateTime
-  createdBy String // userId
 }
 
 model Feeding {
-  id        String    @id @default(cuid())
-  animalId  String
-  animal    Animal    @relation(fields: [animalId], references: [id])
+  id String @id @default(cuid())
+
+  animalId String
+  animal   Animal @relation(fields: [animalId], references: [id])
+
   foodType  String
   quantity  String
   scheduled DateTime
   fedAt     DateTime?
+
+  fedById String?
+  fedBy   User?   @relation("UserFeedings", fields: [fedById], references: [id])
+
+  createdAt DateTime @default(now())
 }

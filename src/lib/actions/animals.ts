@@ -26,7 +26,7 @@ export async function createAnimal(prevState: State, formData: FormData) {
     name: formData.get("name"),
     species: formData.get("species"),
     commonName: formData.get("commonName"),
-    age: formData.get("age"),
+    age: formData.get("age") ? Number(formData.get("age")) : null,
     sex: formData.get("sex"),
     healthStatus: formData.get("healthStatus"),
     weight: formData.get("weight") ? Number(formData.get("weight")) : null,
@@ -117,11 +117,11 @@ export async function updateAnimal(
     };
   }
 
-  const validatedFields = UpdateAnimalSchema.safeParse({
+  const validatedFields = CreateAnimalSchema.safeParse({
     name: formData.get("name"),
     species: formData.get("species"),
     commonName: formData.get("commonName"),
-    age: formData.get("age"),
+    age: formData.get("age") ? Number(formData.get("age")) : null,
     sex: formData.get("sex"),
     healthStatus: formData.get("healthStatus"),
     weight: formData.get("weight") ? Number(formData.get("weight")) : null,

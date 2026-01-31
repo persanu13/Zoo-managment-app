@@ -23,7 +23,7 @@ export default async function Layout({
       }
     >
       <AppSidebar />
-      <SidebarTrigger className="ml-2 mt-2" />
+      <SidebarTrigger className="ml-2 mt-2 sticky" />
       <main className="p-6 pr-14 flex-1 flex min-w-0  flex-col">
         <BreadcrumbWrapper />
         {children}

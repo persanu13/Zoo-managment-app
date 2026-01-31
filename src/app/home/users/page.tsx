@@ -1,34 +1,18 @@
 import { auth } from "@/auth/auth";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-
 import { columns } from "@/components/users/users-columns";
-import { DataTable } from "@/components/users/users-table";
-import { User } from "@/generated/prisma/client";
+import { DataTable } from "@/components/layout/data-table";
 import prisma from "@/lib/prisma";
-import { SlashIcon, UserIcon, UserRoundPlus } from "lucide-react";
-import { UserForm } from "@/components/users/user-form";
+import { UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default async function DemoPage() {
-  const data = await prisma.user.findMany();
+export default async function UsersPage() {
+  const data = await prisma.user.findMany({
+    orderBy: { createdAt: "asc" },
+  });
   const session = await auth();
 
   return (
@@ -37,7 +21,7 @@ export default async function DemoPage() {
         <CardHeader>
           <CardTitle>Users Table</CardTitle>
         </CardHeader>
-        <CardContent className="">
+        <CardContent>
           <DataTable columns={columns} data={data} />
           <Link href="/home/users/create">
             <Button className="cursor-pointer">

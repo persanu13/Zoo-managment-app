@@ -116,6 +116,9 @@ export function AnimalForm({
                 placeholder="African Lion"
                 defaultValue={initialData?.commonName || ""}
               />
+              {errorMessage.errors?.commonName && (
+                <FieldError>{errorMessage.errors.commonName}</FieldError>
+              )}
             </Field>
           </Field>
 
@@ -132,6 +135,9 @@ export function AnimalForm({
                 placeholder="5"
                 defaultValue={initialData?.age || ""}
               />
+              {errorMessage.errors?.age && (
+                <FieldError>{errorMessage.errors.age}</FieldError>
+              )}
             </Field>
             <Field>
               <FieldLabel>Sex</FieldLabel>
@@ -185,11 +191,14 @@ export function AnimalForm({
             <Input
               id="imageUrl"
               name="imageUrl"
-              type="url"
+              type="text"
               placeholder="https://example.com/lion.jpg"
               defaultValue={initialData?.imageUrl || ""}
             />
             <FieldDescription>Optional profile photo</FieldDescription>
+            {errorMessage.errors?.imageUrl && (
+              <FieldError>{errorMessage.errors.imageUrl}</FieldError>
+            )}
           </Field>
 
           {/* HEALTH STATUS */}
@@ -246,6 +255,9 @@ export function AnimalForm({
               </SelectContent>
             </Select>
             <FieldDescription>Leave empty if not assigned</FieldDescription>
+            {errorMessage.errors?.habitatId && (
+              <FieldError>{errorMessage.errors.habitatId}</FieldError>
+            )}
           </Field>
 
           {errorMessage.message && (

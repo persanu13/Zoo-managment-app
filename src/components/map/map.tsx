@@ -17,7 +17,7 @@ import {
 } from "../map/utility";
 import { Vector2d } from "konva/lib/types";
 import { Card } from "../ui/card";
-import { HabitatsData } from "../../../prisma/migrations/habitats-data";
+import { HabitatsData } from "../../../prisma/habitats-data";
 import { Habitat } from "@/generated/prisma/client";
 
 const MAP = {
