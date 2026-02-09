@@ -43,7 +43,7 @@ interface AnimalFormProps {
     habitatId?: string | null;
   } | null;
   mode?: "create" | "edit";
-  habitats?: { id: string; name: string }[]; // Pentru dropdown
+  habitats?: { id: string; name: string }[];
 }
 
 export function AnimalForm({

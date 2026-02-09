@@ -41,6 +41,9 @@ model User {
   treatments Treatment[] @relation("UserTreatments")
   feedings   Feeding[]   @relation("UserFeedings")
 
+  tasksCreated  Task[] @relation("TaskCreatedBy")
+  tasksAssigned Task[] @relation("TaskAssignedTo")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -71,6 +74,7 @@ model Animal {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tasks     Task[]
 }
 
 model Habitat {
@@ -87,6 +91,7 @@ model Habitat {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tasks     Task[]
 }
 
 model Treatment {
@@ -98,11 +103,13 @@ model Treatment {
   title String
   notes String?
 
+  date DateTime
+
   createdById String
   createdBy   User   @relation("UserTreatments", fields: [createdById], references: [id])
 
   createdAt DateTime @default(now())
-  date      DateTime
+  tasks     Task[]
 }
 
 model Feeding {
@@ -120,4 +127,73 @@ model Feeding {
   fedBy   User?   @relation("UserFeedings", fields: [fedById], references: [id])
 
   createdAt DateTime @default(now())
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskType {
+  GENERAL
+  FEEDING
+  CLEANING
+  MEDICAL
+  MAINTENANCE
+  TRANSFER
+  INVENTORY
+}
+
+// model Task
+model Task {
+  id String @id @default(cuid())
+
+  title       String
+  description String?
+  type        TaskType @default(GENERAL)
+
+  status   TaskStatus   @default(TODO)
+  priority TaskPriority @default(MEDIUM)
+
+  // planning
+  dueDate     DateTime?
+  startAt     DateTime?
+  completedAt DateTime?
+
+  // assignment
+  assignedToId String?
+  assignedTo   User?   @relation("TaskAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  createdById String
+  createdBy   User   @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+
+  // optional links (când task-ul e despre ceva concret)
+  animalId String?
+  animal   Animal? @relation(fields: [animalId], references: [id], onDelete: SetNull)
+
+  habitatId String?
+  habitat   Habitat? @relation(fields: [habitatId], references: [id], onDelete: SetNull)
+
+  // dacă ai model Treatment și vrei task-uri de tratament / follow-up
+  treatmentId String?
+  treatment   Treatment? @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, priority])
+  @@index([dueDate])
+  @@index([assignedToId])
+  @@index([animalId])
+  @@index([habitatId])
 }

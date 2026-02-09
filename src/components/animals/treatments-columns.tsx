@@ -46,6 +46,10 @@ import { Animal, Treatment } from "@/generated/prisma/client";
 import { deleteUser } from "@/lib/actions/users";
 import Link from "next/link";
 import { TreatmentView } from "./treatment-view";
+import { deleteTreatment } from "@/lib/actions/treataments";
+import { State } from "@/lib/types";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 
 type TreatmentWithCreator = Treatment & {
   createdBy: {
@@ -115,7 +119,24 @@ export const columns: ColumnDef<TreatmentWithCreator>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const deleteUserWithId = deleteUser.bind(null, row.original.id);
+      const initialState: State = { message: null, errors: {} };
+
+      const action = deleteTreatment.bind(null, row.original.id);
+
+      const [state, formAction, isPending] = useActionState(
+        action,
+        initialState,
+      );
+
+      useEffect(() => {
+        if (!state) return;
+
+        if (state.message) {
+          toast.error(state.message);
+          return;
+        }
+      }, [state]);
+
       return (
         <div className="flex gap-2 justify-end ">
           <TreatmentView treatment={row.original} />
@@ -142,7 +163,7 @@ export const columns: ColumnDef<TreatmentWithCreator>[] = [
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <form action={deleteUserWithId}>
+                <form action={formAction}>
                   <AlertDialogAction type="submit" variant="destructive">
                     Delete
                   </AlertDialogAction>

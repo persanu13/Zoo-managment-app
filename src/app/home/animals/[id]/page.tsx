@@ -1,4 +1,4 @@
-import { TreatamentDialog } from "@/components/animals/treatment-add";
+import { TreatamentAdd } from "@/components/animals/treatment-add";
 import { columns } from "@/components/animals/treatments-columns";
 import { DataTable } from "@/components/layout/data-table";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -144,7 +144,7 @@ export default async function AnimalViewPage(props: {
             </div>
 
             <DataTable data={animal!.treatments} columns={columns} />
-            <TreatamentDialog animalId={animal!.id} />
+            <TreatamentAdd animalId={animal!.id} />
           </div>
         </CardContent>
       </Card>

@@ -10,15 +10,38 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Treatment } from "@/generated/prisma/client";
-import { SquareChartGantt } from "lucide-react";
+
+import { Calendar, SquareChartGantt, User } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 function formatDate(value: Date | string) {
   const d = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(d.getTime())) return "—";
-  return new Intl.DateTimeFormat("ro-RO", { dateStyle: "long" }).format(d);
+  return new Intl.DateTimeFormat("ro-EN", { dateStyle: "long" }).format(d);
 }
 
-export function TreatmentView({ treatment }: { treatment: Treatment }) {
+function authorLabel(createdBy?: TreatmentViewModel["createdBy"]) {
+  if (!createdBy) return "—";
+  return createdBy.name?.trim() || createdBy.email?.trim() || "—";
+}
+
+type TreatmentViewModel = {
+  id: string;
+  title: string;
+  notes?: string | null;
+  date: Date | string;
+  createdAt: Date | string;
+  createdBy?: {
+    name?: string | null;
+    email?: string | null;
+  } | null;
+};
+
+export function TreatmentView({
+  treatment,
+}: {
+  treatment: TreatmentViewModel;
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -26,28 +49,37 @@ export function TreatmentView({ treatment }: { treatment: Treatment }) {
           <SquareChartGantt size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Sticky Footer</DialogTitle>
-          <DialogDescription>
-            This dialog has a sticky footer that stays visible while the content
-            scrolls.
-          </DialogDescription>
+      <DialogContent className="sm:max-w-md p-0 gap-0 rounded-2xl overflow-hidden">
+        <DialogHeader className="border-b bg-background px-6 py-5 shadow-[0px_3px_4px_rgba(0,0,0,0.2)]">
+          <DialogTitle className="text-base font-semibold">
+            {treatment.title}
+          </DialogTitle>
+
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>{formatDate(treatment.date)}</span>
+            </span>
+
+            <span className="inline-flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <span>{authorLabel(treatment.createdBy)}</span>
+            </span>
+          </div>
         </DialogHeader>
-        <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <p key={index} className="mb-4 leading-normal">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
+        <Separator orientation="horizontal" className=""></Separator>
+        <div className="no-scrollbar  max-h-[50vh] min-h-[50vh] overflow-y-auto px-6 py-5">
+          {treatment.notes?.trim() ? (
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+              {treatment.notes}
             </p>
-          ))}
+          ) : (
+            <div className="rounded-md border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+              Nu există notițe pentru acest tratament.
+            </div>
+          )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="border-t bg-muted/20 px-6 py-4">
           <DialogClose asChild>
             <Button variant="outline">Close</Button>
           </DialogClose>

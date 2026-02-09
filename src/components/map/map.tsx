@@ -17,7 +17,7 @@ import {
 } from "../map/utility";
 import { Vector2d } from "konva/lib/types";
 import { Card } from "../ui/card";
-import { HabitatsData } from "../../../prisma/habitats-data";
+
 import { Habitat } from "@/generated/prisma/client";
 
 const MAP = {
@@ -32,15 +32,17 @@ const SCALE_FACTOR = 10;
 const PADDING = 50;
 const MAX_SCALE = 1;
 
-export default function Map() {
+export default function Map({ habitats }: { habitats: Habitat[] }) {
   //refs
   const stageRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   //states
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-  const [tooltipText, setTooltipText] = useState("");
-  const [isTooltipVisible, setTooltipVisible] = useState(false);
+  const [menu, setMenu] = useState<{
+    x: number;
+    y: number;
+    habitat: Habitat;
+  } | null>(null);
   const boundingBox = calculateBoundingBox(MAP.perimeterPoints);
 
   //functions
@@ -147,20 +149,29 @@ export default function Map() {
     updatePosition({ x, y });
   };
 
-  const handleMouseMove = (e: any, habitat: Habitat) => {
+  const handleMouseEnter = (
+    e: any,
+    habitat: Habitat,
+    center: { x: number; y: number },
+  ) => {
     const stage = e.target.getStage();
-    const scale = stage.scaleX();
-    const pos = stage.getPointerPosition();
-    setTooltipPos({
-      x: pos.x * scale,
-      y: pos.y * scale,
+    if (!stage) return;
+
+    const sx = stage.scaleX();
+    const sy = stage.scaleY();
+
+    const screenX = stage.x() + center.x * SCALE_FACTOR * sx;
+    const screenY = stage.y() + center.y * SCALE_FACTOR * sy; // dacă tu ai +4 în desen
+
+    setMenu({
+      x: screenX,
+      y: screenY,
+      habitat: habitat,
     });
-    setTooltipText(habitat.name);
-    setTooltipVisible(true);
   };
 
-  const handleMouseOut = () => {
-    setTooltipVisible(false);
+  const handleMouseLeave = () => {
+    setMenu(null);
   };
 
   useEffect(() => {
@@ -217,14 +228,16 @@ export default function Map() {
               fontStyle="bold"
               fill="#111F35"
             />
-            {HabitatsData.map((habitat) => {
+            {habitats.map((habitat) => {
               const center = polygonCentroid(habitat.coordinates);
 
               return (
                 <Group
                   key={habitat.id}
-                  onMouseMove={(e) => handleMouseMove(e, habitat)}
-                  onMouseOut={handleMouseOut}
+                  onMouseEnter={(e) => {
+                    handleMouseEnter(e, habitat, center);
+                  }}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <Line
                     points={habitat.coordinates.map(
@@ -275,7 +288,17 @@ export default function Map() {
           </Layer>
         </Stage>
       </Card>
-      <div className="absolute bottom-0 left-0"></div>
+      {menu && (
+        <div
+          className="absolute z-50 rounded-md bg-[#111F35] text-[#F8FAE6] shadow-lg text-sm p-2"
+          style={{
+            left: menu.x,
+            top: menu.y,
+          }}
+        >
+          <h1>{menu.habitat.name}</h1>
+        </div>
+      )}
     </div>
   );
 }

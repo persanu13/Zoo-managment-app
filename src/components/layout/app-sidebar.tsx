@@ -1,4 +1,12 @@
-import { Home, Users, LogOut, Turtle, Map } from "lucide-react";
+import {
+  Home,
+  Users,
+  LogOut,
+  Turtle,
+  Map,
+  Trees,
+  ListTodo,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -29,6 +37,16 @@ const items = [
     title: "Animals",
     url: "/home/animals",
     icon: Turtle,
+  },
+  {
+    title: "Habitats",
+    url: "/home/habitats",
+    icon: Trees,
+  },
+  {
+    title: "Tasks",
+    url: "/home/tasks",
+    icon: ListTodo,
   },
   {
     title: "Zoo Map",
