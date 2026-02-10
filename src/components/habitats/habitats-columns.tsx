@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useUser } from "@/contexts/user-context";
 
 // import { deleteHabitat } from "@/lib/actions/habitats"; // dacă ai delete
 
@@ -158,34 +159,37 @@ export const columns: ColumnDef<HabitatRow>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const router = useRouter();
-      const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+      const user = useUser();
 
-      return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+      if (user?.role === "STAFF") {
+        return;
+      } else {
+        return (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.push(`/home/habitats/${row.original.id}/edit`)
-                  }
-                >
-                  Edit
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
-      );
+              <DropdownMenuContent align="end">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.push(`/home/habitats/${row.original.id}/edit`)
+                    }
+                  >
+                    Edit
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        );
+      }
     },
   },
 ];

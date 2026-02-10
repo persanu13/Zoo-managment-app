@@ -28,7 +28,7 @@ export const TaskSchema = z.object({
   status: TaskStatusEnum.default(TaskStatus.TODO),
   priority: TaskPriorityEnum.default(TaskPriority.MEDIUM),
 
-  dueDate: z.date().nullish(),
+  dueDate: z.coerce.date().nullish(),
   startAt: z.date().nullish(),
   completedAt: z.date().nullish(),
 

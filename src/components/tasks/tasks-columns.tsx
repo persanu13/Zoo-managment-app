@@ -144,6 +144,7 @@ function typeMeta(type: TaskType) {
 }
 
 export const columns: ColumnDef<TaskRow>[] = [
+  // Title
   {
     accessorKey: "title",
     header: "Title",
@@ -151,6 +152,8 @@ export const columns: ColumnDef<TaskRow>[] = [
       <div className="font-medium">{row.getValue("title") as string}</div>
     ),
   },
+
+  // Type
   {
     accessorKey: "type",
     header: "Type",
@@ -165,6 +168,8 @@ export const columns: ColumnDef<TaskRow>[] = [
       );
     },
   },
+
+  // Status
   {
     accessorKey: "status",
     filterFn: (row, id, value) => {
@@ -286,59 +291,31 @@ export const columns: ColumnDef<TaskRow>[] = [
       );
     },
   },
+
+  // Priority
   {
     accessorKey: "priority",
-    filterFn: (row, id, value) => {
-      if (!value) return true;
-      return row.getValue(id) === value;
+    sortingFn: (rowA, rowB, columnId) => {
+      const rank: Record<string, number> = {
+        LOW: 1,
+        MEDIUM: 2,
+        HIGH: 3,
+        URGENT: 4,
+      };
+
+      const a = String(rowA.getValue(columnId));
+      const b = String(rowB.getValue(columnId));
+
+      return (rank[b] ?? 0) - (rank[a] ?? 0);
     },
     header: ({ column }) => (
-      <div className="flex items-center justify-between w-full h-8 px-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" onClick={(e) => e.stopPropagation()}>
-              Priority
-              <ChevronUp />
-              <span className="sr-only">Filter priority</span>
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Filter priority</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => column.setFilterValue("")}
-              className="cursor-pointer"
-            >
-              All
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => column.setFilterValue("LOW")}
-              className="cursor-pointer"
-            >
-              Low
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => column.setFilterValue("MEDIUM")}
-              className="cursor-pointer"
-            >
-              Medium
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => column.setFilterValue("HIGH")}
-              className="cursor-pointer"
-            >
-              High
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => column.setFilterValue("URGENT")}
-              className="cursor-pointer"
-            >
-              Urgent
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Priority
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
     ),
     cell: ({ row }) => {
       const p = row.getValue("priority") as TaskPriority;
@@ -352,7 +329,7 @@ export const columns: ColumnDef<TaskRow>[] = [
     },
   },
 
-  // Assigned to (optional)
+  // Assigned to
   {
     id: "assignedTo",
     header: "Assigned to",
@@ -434,21 +411,22 @@ export const columns: ColumnDef<TaskRow>[] = [
                   View details
                 </DropdownMenuItem>
 
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.push(`/home/tasks/${row.original.id}/edit`)
-                  }
-                >
-                  Edit
-                </DropdownMenuItem>
-
                 {user?.role !== "STAFF" && (
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={() => setShowDeleteDialog(true)}
-                  >
-                    Delete
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.push(`/home/tasks/${row.original.id}/edit`)
+                      }
+                    >
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setShowDeleteDialog(true)}
+                    >
+                      Delete
+                    </DropdownMenuItem>
+                  </>
                 )}
               </DropdownMenuGroup>
             </DropdownMenuContent>

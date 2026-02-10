@@ -36,6 +36,7 @@ import { User as UserPrisma } from "@/generated/prisma/client";
 import { ArrowUpDown } from "lucide-react";
 import { deleteUser } from "@/lib/actions/users";
 import Link from "next/link";
+import { useUser } from "@/contexts/user-context";
 
 export const columns: ColumnDef<UserPrisma>[] = [
   {
@@ -184,50 +185,52 @@ export const columns: ColumnDef<UserPrisma>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      const user = useUser();
       const deleteUserWithId = deleteUser.bind(null, row.original.id);
-      return (
-        <div className="flex gap-2 justify-end">
-          <Link href={`/home/users/${row.original.id}/edit`}>
-            <Button
-              variant="outline"
-              size="icon"
-              className="cursor-pointer size-9"
-            >
-              <SquarePen size="16" />
-            </Button>
-          </Link>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+      if (user?.role === "SUPER_ADMIN")
+        return (
+          <div className="flex gap-2 justify-end">
+            <Link href={`/home/users/${row.original.id}/edit`}>
               <Button
-                variant="destructive"
+                variant="outline"
                 size="icon"
                 className="cursor-pointer size-9"
               >
-                <Trash2Icon size="16" />
+                <SquarePen size="16" />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Delete User "{row.original.email}"
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete this user? This action cannot
-                  be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <form action={deleteUserWithId}>
-                  <AlertDialogAction type="submit" variant="destructive">
-                    Delete
-                  </AlertDialogAction>
-                </form>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      );
+            </Link>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="cursor-pointer size-9"
+                >
+                  <Trash2Icon size="16" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Delete User "{row.original.email}"
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this user? This action
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <form action={deleteUserWithId}>
+                    <AlertDialogAction type="submit" variant="destructive">
+                      Delete
+                    </AlertDialogAction>
+                  </form>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        );
     },
   },
 ];

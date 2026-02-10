@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { geistMono, geistSans, inter, robotoMono } from "@/lib/fonts";
+import { geistMono, geistSans } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "Zoo managment app",
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${robotoMono.variable} font-inter antialiased overflow-x-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable}  antialiased overflow-x-hidden`}
       >
         <ThemeProvider>
           <ThemeToggle className="absolute right-2 top-2" />

@@ -14,7 +14,7 @@ export default async function TasksPage() {
   const allTasks =
     user?.role === "SUPER_ADMIN"
       ? await prisma.task.findMany({
-          orderBy: { createdAt: "desc" },
+          orderBy: { updatedAt: "desc" },
           include: {
             createdBy: true,
             assignedTo: true,
@@ -28,7 +28,7 @@ export default async function TasksPage() {
   const createdTasks =
     user?.role !== "STAFF"
       ? await prisma.task.findMany({
-          orderBy: { createdAt: "desc" },
+          orderBy: { updatedAt: "desc" },
           include: {
             createdBy: true,
             assignedTo: true,
@@ -43,7 +43,7 @@ export default async function TasksPage() {
       : null;
 
   const myTasks = await prisma.task.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
     include: {
       createdBy: true,
       assignedTo: true,

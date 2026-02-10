@@ -26,21 +26,23 @@ export default async function Layout({
     : null;
 
   return (
-    <SidebarProvider
-      defaultOpen={defaultOpen}
-      style={
-        {
-          ["--sidebar-width" as any]: "12rem",
-          ["--sidebar-width-mobile" as any]: "12rem",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar />
-      <SidebarTrigger className="ml-2 mt-2 sticky" />
-      <main className="p-6 pr-14 flex-1 flex min-w-0  flex-col">
-        <BreadcrumbWrapper />
-        <UserProvider user={user}> {children}</UserProvider>
-      </main>
-    </SidebarProvider>
+    <UserProvider user={user}>
+      <SidebarProvider
+        defaultOpen={defaultOpen}
+        style={
+          {
+            ["--sidebar-width" as any]: "12rem",
+            ["--sidebar-width-mobile" as any]: "12rem",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar />
+        <SidebarTrigger className="ml-2 mt-2 sticky" />
+        <main className="p-6 pr-14 flex-1 flex min-w-0  flex-col">
+          <BreadcrumbWrapper />
+          {children}
+        </main>
+      </SidebarProvider>
+    </UserProvider>
   );
 }

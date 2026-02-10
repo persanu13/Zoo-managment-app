@@ -82,7 +82,7 @@ export function TreatamentAdd({ animalId }: { animalId: string }) {
 
                 <Field>
                   <FieldLabel htmlFor="date">Date</FieldLabel>
-                  <DatePicker name="date" />
+                  <DatePicker name="date" mode="datetime" />
                   <FieldDescription>
                     This is the date the treatment was performed.
                   </FieldDescription>

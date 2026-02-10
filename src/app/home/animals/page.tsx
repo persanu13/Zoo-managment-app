@@ -5,8 +5,17 @@ import { DataTable } from "@/components/layout/data-table";
 import prisma from "@/lib/prisma";
 import { Turtle } from "lucide-react";
 import Link from "next/link";
+import { auth } from "@/auth/auth";
 
 export default async function AnimalsPage() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = session.user;
+
   const data = await prisma.animal.findMany({
     orderBy: { createdAt: "asc" },
   });
@@ -19,12 +28,14 @@ export default async function AnimalsPage() {
         </CardHeader>
         <CardContent>
           <DataTable columns={columns} data={data} />
-          <Link href="/home/animals/create">
-            <Button className="cursor-pointer">
-              Add new Animal
-              <Turtle className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          {user.role !== "STAFF" && (
+            <Link href="/home/animals/create">
+              <Button className="cursor-pointer">
+                Add new Animal
+                <Turtle className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          )}
         </CardContent>
       </Card>
     </div>

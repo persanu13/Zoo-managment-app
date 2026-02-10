@@ -98,12 +98,11 @@ model Treatment {
   id String @id @default(cuid())
 
   animalId String
-  animal   Animal @relation(fields: [animalId], references: [id])
+  animal   Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
 
   title String
   notes String?
-
-  date DateTime
+  date  DateTime
 
   createdById String
   createdBy   User   @relation("UserTreatments", fields: [createdById], references: [id])
@@ -116,7 +115,7 @@ model Feeding {
   id String @id @default(cuid())
 
   animalId String
-  animal   Animal @relation(fields: [animalId], references: [id])
+  animal   Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
 
   foodType  String
   quantity  String

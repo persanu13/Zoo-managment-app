@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Home,
   Users,
@@ -20,8 +22,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/auth/auth";
+import { LogoutButton } from "./logout-button";
+import { useUser } from "@/contexts/user-context";
+import { Role } from "@/generated/prisma/client";
 
-// Menu items.
 const items = [
   {
     title: "Home",
@@ -32,6 +36,7 @@ const items = [
     title: "Users",
     url: "/home/users",
     icon: Users,
+    roles: ["ADMIN", "SUPER_ADMIN"] as Role[],
   },
   {
     title: "Animals",
@@ -56,6 +61,13 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const user = useUser();
+  const visibleItems = items.filter((item) => {
+    if (!item.roles) return true; // vizibil pentru toți
+    if (!user?.role) return false;
+    return item.roles.includes(user.role);
+  });
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -63,7 +75,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
@@ -78,17 +90,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}
-        >
-          <SidebarMenuButton className="cursor-pointer">
-            <LogOut size={18}></LogOut>
-            <span>LogOut</span>
-          </SidebarMenuButton>
-        </form>
+        <LogoutButton />
       </SidebarFooter>
     </Sidebar>
   );

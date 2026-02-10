@@ -13,7 +13,7 @@ export async function createUser(prevState: State, formData: FormData) {
   const session = await auth();
   const user = session?.user;
 
-  if (!user || user.role === Role.STAFF) {
+  if (!user || user.role !== Role.SUPER_ADMIN) {
     return {
       errors: {},
       message: "You don't have acces to do this function.",
@@ -79,7 +79,7 @@ export async function updateUser(
   const user = session?.user;
 
   // Authorization check
-  if (!user || user.role === Role.STAFF) {
+  if (!user || user.role !== Role.SUPER_ADMIN) {
     return {
       errors: {},
       message: "You don't have access to do this function.",
@@ -164,7 +164,7 @@ export async function updateUser(
 export async function deleteUser(userId: string) {
   const session = await auth();
   const user = session?.user;
-  if (!user || user.role === Role.STAFF || user.role === Role.ADMIN) {
+  if (!user || user.role !== Role.SUPER_ADMIN) {
     throw new Error("You don't have access to do this function.");
   }
   await prisma.user.delete({

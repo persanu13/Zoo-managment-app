@@ -18,8 +18,9 @@ export const TreatmentSchema = z.object({
     .nullish(),
 
   createdById: z.string().cuid(),
+  date: z.coerce.date(),
+
   createdAt: z.date(),
-  date: z.date(),
 });
 
 export const CreateTreatmentSchema = TreatmentSchema.omit({

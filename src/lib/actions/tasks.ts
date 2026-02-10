@@ -20,6 +20,8 @@ export async function createTask(prevState: State, formData: FormData) {
     };
   }
 
+  console.log(formData.get("dueDate"));
+
   const validatedFields = CreateTaskSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description") ?? "",
@@ -27,15 +29,13 @@ export async function createTask(prevState: State, formData: FormData) {
     type: formData.get("type") ?? TaskType.GENERAL,
     priority: formData.get("priority") ?? TaskPriority.MEDIUM,
 
-    dueDate: parseDateOnly(formData.get("dueDate")),
+    dueDate: formData.get("dueDate"),
 
     assignedToId: formData.get("assignedToId"),
     animalId: formData.get("animalId") ?? "",
     habitatId: formData.get("habitatId") ?? "",
     treatmentId: formData.get("treatmentId") ?? "",
   });
-
-  console.log(formData.get("habitatId"));
 
   if (!validatedFields.success) {
     return {

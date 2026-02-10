@@ -48,6 +48,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteAnimal } from "@/lib/actions/animals";
 import { useState } from "react";
+import { useUser } from "@/contexts/user-context";
 
 export const columns: ColumnDef<Animal>[] = [
   {
@@ -213,6 +214,7 @@ export const columns: ColumnDef<Animal>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const router = useRouter();
+      const user = useUser();
       const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
       return (
@@ -235,20 +237,24 @@ export const columns: ColumnDef<Animal>[] = [
                 >
                   View details
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.push(`/home/animals/${row.original.id}/edit`)
-                  }
-                >
-                  Edit
-                </DropdownMenuItem>
+                {user?.role !== "STAFF" && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.push(`/home/animals/${row.original.id}/edit`)
+                      }
+                    >
+                      Edit
+                    </DropdownMenuItem>
 
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => setShowDeleteDialog(true)}
-                >
-                  Delete
-                </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setShowDeleteDialog(true)}
+                    >
+                      Delete
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

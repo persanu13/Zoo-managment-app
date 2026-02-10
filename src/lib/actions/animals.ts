@@ -196,6 +196,8 @@ export async function deleteAnimal(animalId: string) {
   const session = await auth();
   const user = session?.user;
 
+  console.log(animalId);
+
   if (!user || user.role === Role.STAFF) {
     throw new Error("You don't have access to delete animals.");
   }

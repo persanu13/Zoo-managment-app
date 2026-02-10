@@ -14,10 +14,10 @@ export async function createTreatment(prevState: State, formData: FormData) {
   const session = await auth();
   const user = session?.user;
 
-  if (!user || user.role === Role.STAFF) {
+  if (!user) {
     return {
       errors: {},
-      message: "You must be logged in with an admin account.",
+      message: "You must be logged.",
     };
   }
 
@@ -25,7 +25,7 @@ export async function createTreatment(prevState: State, formData: FormData) {
     animalId: formData.get("animalId"),
     title: formData.get("title"),
     notes: formData.get("notes") ?? "",
-    date: parseDateOnly(formData.get("date")),
+    date: formData.get("date"),
   });
 
   if (!validatedFields.success) {
@@ -79,10 +79,10 @@ export async function deleteTreatment(
   const session = await auth();
   const user = session?.user;
 
-  if (!user || user.role === Role.STAFF) {
+  if (!user) {
     return {
       errors: {},
-      message: "You don't have access to delete treatments.",
+      message: "You must be logged.",
     };
   }
 
@@ -98,7 +98,7 @@ export async function deleteTreatment(
     };
   }
 
-  if (existing.createdById !== user.id) {
+  if (existing.createdById !== user.id && user.role !== "SUPER_ADMIN") {
     return {
       errors: {},
       message: "You can only delete your own treatments.",

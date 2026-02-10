@@ -10,10 +10,17 @@ import { UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default async function UsersPage() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = session.user;
+
   const data = await prisma.user.findMany({
     orderBy: { createdAt: "asc" },
   });
-  const session = await auth();
 
   return (
     <div className="container mx-auto  flex justify-center  mt-8">
@@ -23,12 +30,14 @@ export default async function UsersPage() {
         </CardHeader>
         <CardContent>
           <DataTable columns={columns} data={data} />
-          <Link href="/home/users/create">
-            <Button className="cursor-pointer">
-              Create New User
-              <UserRoundPlus className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          {user.role === "SUPER_ADMIN" && (
+            <Link href="/home/users/create">
+              <Button className="cursor-pointer">
+                Create New User
+                <UserRoundPlus className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          )}
         </CardContent>
       </Card>
     </div>

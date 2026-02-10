@@ -10,20 +10,43 @@ export const authConfig = {
     //  Middleware authorization
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnHome = nextUrl.pathname.startsWith("/home");
+      const role = auth?.user?.role;
 
-      if (nextUrl.pathname === "/") {
+      const pathname = nextUrl.pathname;
+      const isOnHome = pathname.startsWith("/home");
+
+      if (pathname === "/") {
         return Response.redirect(
           new URL(isLoggedIn ? "/home" : "/login", nextUrl),
         );
       }
 
-      if (isOnHome) {
-        return isLoggedIn;
+      if (isLoggedIn && pathname === "/login") {
+        return Response.redirect(new URL("/home", nextUrl));
       }
 
-      if (isLoggedIn && nextUrl.pathname === "/login") {
-        return Response.redirect(new URL("/home", nextUrl));
+      if (isOnHome && !isLoggedIn) return false;
+
+      const isAdminOrSuper = role === "ADMIN" || role === "SUPER_ADMIN";
+
+      const isSuper = role === "SUPER_ADMIN";
+
+      const isCreateOrEditRoute =
+        pathname.startsWith("/home/") &&
+        (pathname.includes("/create") || pathname.includes("/edit"));
+
+      const isUsersRoute = pathname.startsWith("/home/users");
+
+      if (isUsersRoute && !isAdminOrSuper) {
+        return Response.redirect(new URL("/unauthorized", nextUrl));
+      }
+
+      if (isUsersRoute && isCreateOrEditRoute && !isSuper) {
+        return Response.redirect(new URL("/unauthorized", nextUrl));
+      }
+
+      if (isCreateOrEditRoute && !isUsersRoute && !isAdminOrSuper) {
+        return Response.redirect(new URL("/unauthorized", nextUrl));
       }
 
       return true;

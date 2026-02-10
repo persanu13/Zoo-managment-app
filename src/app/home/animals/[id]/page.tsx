@@ -56,9 +56,12 @@ export default async function AnimalViewPage(props: {
 
   return (
     <div className="container mx-auto     mt-8">
-      <h1 className="text-5xl font-medium my-4 ml-6">Animal Profile</h1>
-      <Card className="w-full  mb-5 max-w-240">
-        <CardHeader></CardHeader>
+      <Card className="w-full  mb-5 ">
+        <CardHeader>
+          <CardTitle className="text-3xl font-medium  ">
+            Animal Profile
+          </CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="flex w-full  gap-8">
             <div className="flex-1   rounded-md max-w-92">
@@ -72,8 +75,8 @@ export default async function AnimalViewPage(props: {
               </AspectRatio>
             </div>
 
-            <div className="flex-1 space-y-6">
-              <h2 className="text-3xl font-semibold">Animal Information</h2>
+            <div className=" flex flex-col space-y-6 w-fit">
+              <h2 className="text-2xl font-semibold">Animal Information</h2>
 
               <Separator />
 
