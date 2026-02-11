@@ -13,8 +13,12 @@ interface EditTaskPageProps {
   params: { id: string };
 }
 
-export default async function EditTaskPage({ params }: EditTaskPageProps) {
-  const session = await auth();
+export default async function EditTaskPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: taskId } = await params;
 
   const users = await prisma.user.findMany({
     orderBy: { name: "asc" },
@@ -28,7 +32,6 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
     orderBy: { number: "asc" },
   });
 
-  const taskId = params.id;
   const initialTask = await prisma.task.findFirst({
     where: { id: taskId },
   });

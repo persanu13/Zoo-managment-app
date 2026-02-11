@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { comicRelief, rowdies, tinos } from "@/lib/fonts";
 import prisma from "@/lib/prisma";
 
 import {
@@ -26,6 +25,7 @@ import {
 } from "lucide-react";
 
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
 export default async function AnimalViewPage(props: {
   params: Promise<{ id: string }>;
@@ -48,6 +48,13 @@ export default async function AnimalViewPage(props: {
       },
     },
   });
+
+  if (!animal) {
+    return notFound();
+  }
+
+  const src = animal.imageUrl ?? "/images/No-Image-Placeholder-landscape.svg";
+
   const SexIcon = ({ sex }: { sex: string }) => {
     if (sex === "MALE") return <Mars className="w-5 h-5 text-blue-600" />;
     if (sex === "FEMALE") return <Venus className="w-5 h-5 text-pink-600" />;
@@ -67,7 +74,7 @@ export default async function AnimalViewPage(props: {
             <div className="flex-1   rounded-md max-w-92">
               <AspectRatio ratio={1 / 1} className="bg-muted rounded-md ">
                 <Image
-                  src="https://i.ibb.co/nsVSH214/Day-24-Favorite-Parent-Mufasa-Just-his-name-makes-you-shiver.jpg"
+                  src={src}
                   alt="Photo"
                   fill
                   className=" object-cover rounded-md shadow-[4px_4px_4px_rgba(0,0,0,0.4)]"

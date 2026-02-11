@@ -1,5 +1,12 @@
 // prisma/seed.ts
-import { HealthStatus, PrismaClient, Sex } from "@/generated/prisma/client";
+import {
+  HealthStatus,
+  PrismaClient,
+  Sex,
+  TaskPriority,
+  TaskStatus,
+  TaskType,
+} from "@/generated/prisma/client";
 import { hashPassword } from "@/lib/auth-utils";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { faker } from "@faker-js/faker";
@@ -103,6 +110,125 @@ async function generateRandomFeedings(
   return feedings;
 }
 
+function pickRandomId(arr: { id: string }[]) {
+  return arr[Math.floor(Math.random() * arr.length)]?.id ?? null;
+}
+
+function randomBool(p = 0.5) {
+  return Math.random() < p;
+}
+
+async function generateRandomTasks(
+  count: number,
+  animals: any[],
+  habitats: any[],
+  treatments: any[],
+  users: any[],
+) {
+  const tasks = [];
+
+  for (let i = 0; i < count; i++) {
+    const type = faker.helpers.enumValue(TaskType);
+    const priority = faker.helpers.enumValue(TaskPriority);
+
+    // status: mai multe TODO / IN_PROGRESS decât DONE
+    const status = faker.helpers.weightedArrayElement<TaskStatus>([
+      { value: TaskStatus.TODO, weight: 45 },
+      { value: TaskStatus.IN_PROGRESS, weight: 25 },
+      { value: TaskStatus.BLOCKED, weight: 10 },
+      { value: TaskStatus.DONE, weight: 18 },
+      { value: TaskStatus.CANCELED, weight: 2 },
+    ]);
+
+    const createdById = faker.helpers.arrayElement(users.map((u) => u.id));
+    const assignedToId = randomBool(0.75)
+      ? faker.helpers.arrayElement(users.map((u) => u.id))
+      : null;
+
+    // timing logic
+    const now = new Date();
+    const dueDate =
+      status === TaskStatus.DONE
+        ? faker.date.recent({ days: 30 })
+        : faker.date.soon({ days: 30 });
+
+    const startAt =
+      status === TaskStatus.IN_PROGRESS || status === TaskStatus.DONE
+        ? faker.date.recent({ days: 14 })
+        : null;
+
+    const completedAt =
+      status === TaskStatus.DONE
+        ? faker.date.between({ from: startAt ?? now, to: now })
+        : null;
+
+    // link logic (în funcție de tip)
+    let animalId: string | null = null;
+    let habitatId: string | null = null;
+    let treatmentId: string | null = null;
+
+    if (type === TaskType.MEDICAL) {
+      // medical: preferă să lege de treatment, și de animal implicit
+      if (treatments.length > 0 && randomBool(0.8)) {
+        const t = faker.helpers.arrayElement(treatments);
+        treatmentId = t.id;
+        animalId = t.animalId ?? null;
+      } else {
+        animalId = pickRandomId(animals);
+      }
+    } else if (type === TaskType.FEEDING || type === TaskType.TRANSFER) {
+      animalId = pickRandomId(animals);
+      // transfer: uneori are și habitat țintă
+      if (type === TaskType.TRANSFER && randomBool(0.6)) {
+        habitatId = pickRandomId(habitats);
+      }
+    } else if (type === TaskType.CLEANING || type === TaskType.MAINTENANCE) {
+      habitatId = pickRandomId(habitats);
+      // uneori cleaning e despre un animal anume (ex: cușca unui animal)
+      if (randomBool(0.25)) animalId = pickRandomId(animals);
+    } else if (type === TaskType.INVENTORY) {
+      // inventory: de obicei fără legături
+      if (randomBool(0.15)) habitatId = pickRandomId(habitats);
+    } else {
+      // GENERAL: rareori are legături
+      if (randomBool(0.2)) animalId = pickRandomId(animals);
+      if (randomBool(0.2)) habitatId = pickRandomId(habitats);
+    }
+
+    // title/description simple
+    const titleByType: Record<string, string[]> = {
+      GENERAL: ["General check", "Staff briefing", "Update records"],
+      FEEDING: ["Prepare feeding", "Feed animal", "Check feeding schedule"],
+      CLEANING: ["Clean habitat", "Disinfect enclosure", "Replace bedding"],
+      MEDICAL: ["Medical follow-up", "Vet check", "Administer treatment"],
+      MAINTENANCE: ["Fix gate", "Inspect fence", "Repair water system"],
+      TRANSFER: ["Prepare transfer", "Move animal", "Habitat reassignment"],
+      INVENTORY: ["Count supplies", "Order food", "Check medical stock"],
+    };
+
+    const title = faker.helpers.arrayElement(titleByType[type] ?? ["Task"]);
+    const description = faker.lorem.sentence();
+
+    tasks.push({
+      title,
+      description,
+      type,
+      status,
+      priority,
+      dueDate,
+      startAt,
+      completedAt,
+      assignedToId,
+      createdById,
+      animalId,
+      habitatId,
+      treatmentId,
+    });
+  }
+
+  return tasks;
+}
+
 export async function main() {
   console.log("🌱 Starting FULL seed...");
 
@@ -110,6 +236,7 @@ export async function main() {
   const randomAnimalCount = parseInt(process.argv[3] || "30");
   const randomTreatmentCount = parseInt(process.argv[4] || "50");
   const randomFeedingCount = parseInt(process.argv[5] || "100");
+  const randomTaskCount = parseInt(process.argv[6] || "120");
 
   console.log(
     `👥 Users: ${randomUserCount}, 🦁 Animals: ${randomAnimalCount}, 💊 Treatments: ${randomTreatmentCount}, 🍽️ Feedings: ${randomFeedingCount}`,
@@ -118,6 +245,7 @@ export async function main() {
   // 🧹 Clean everything
   if (process.env.NODE_ENV !== "production") {
     console.log("🧹 Cleaning database...");
+    await prisma.task.deleteMany();
     await prisma.treatment.deleteMany();
     await prisma.feeding.deleteMany();
     await prisma.animal.deleteMany();
@@ -205,6 +333,22 @@ export async function main() {
     skipDuplicates: true,
   });
 
+  // Tasks
+  console.log("🧩 Creating tasks...");
+  const allTreatments = await prisma.treatment.findMany();
+  const randomTasks = await generateRandomTasks(
+    randomTaskCount,
+    allAnimals,
+    allHabitats,
+    allTreatments,
+    allUsers,
+  );
+
+  const tasksResult = await prisma.task.createMany({
+    data: randomTasks,
+    skipDuplicates: true,
+  });
+
   // 🍽️ FEEDINGS
   console.log("🍽️ Creating feedings...");
   const randomFeedings = await generateRandomFeedings(
@@ -224,6 +368,7 @@ export async function main() {
   🦁 Animals: ${animalsResult.count}
   💊 Treatments: ${treatmentsResult.count}
   🍽️ Feedings: ${feedingsResult.count}
+  🧩 Tasks: ${tasksResult.count}
   `);
 }
 
